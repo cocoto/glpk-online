@@ -221,7 +221,7 @@
 				ub = "+inf";
 			}
 			var lb = glp_get_col_lb(lp, i);
-			if(lb <= Number.MIN_VALUE){
+			if(lb <= -Number.MAX_VALUE){
 				lb = "-inf";
 			}
 			
@@ -247,7 +247,7 @@
 				ub = "+inf";
 			}
 			var lb = glp_get_row_lb(lp, i);
-			if(lb <= Number.MIN_VALUE){
+			if(lb <= -Number.MAX_VALUE){
 				lb = "-inf";
 			}
 			
