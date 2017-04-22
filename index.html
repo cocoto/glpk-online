@@ -56,8 +56,11 @@
 				3    0.05     0.06    0.06     ;
 		</textarea>
 		</div></div>
-		<div class=col-md-12>
+		<div class="col-md-12">
 		<input type="button" onclick="solve()" value="Solve" class="btn btn-success"/>
+		</div>
+		<div class="col-md-12" id="msgZone">
+			
 		</div>
 		<div class="row"><div class="col-md-12">
 		  <!-- Nav tabs -->
@@ -142,6 +145,7 @@
 	});
 		
 	function solve(){
+		$("#msgZone").html("");
 		$(".line-error").removeClass("line-error");
 		$("#glpkLog").html("");
 		$("#glpkOutput").html("");
@@ -172,6 +176,7 @@
 			if(err.line){
 				myCodeMirror.addLineClass(err.line-1,'background','line-error');
 			}
+			$("#msgZone").append("<div class=' alert alert-danger'>"+err.toString()+"</div>");
 			console.log(err.toString());
 			return;
 		}
@@ -193,7 +198,11 @@
 			case GLP_FEAS : status = "FEASIBLE SOLUTION"; break;
 			case GLP_UNBND : status = "UNBOUNDED SOLUTION"; break;
 		}
-		
+		if(status=="OPTIMAL"){
+			$("#msgZone").append("<div class='alert alert-success'>"+status+" : "+glp_mip_obj_val(lp)+"</div>");
+		}else{
+			$("#msgZone").append("<div class='alert alert-warning'>"+status+"</div>");
+		}
 		
 		
 		
