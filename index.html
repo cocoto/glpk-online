@@ -22,97 +22,71 @@
 <body>
 	<div class="container">
 		<h1>GNU MATHPROG SOLVER</h1>
-		<div class="row"><div class="col-md-12">
-		<textarea id="modelInput" class="form-control" rows="20">
-		#Exercice 3 : emprunts bancaires
-
-		set Villes; # ensemble des boutiques
-		param couts{Villes}; #cout de construction
-		param N; # nombre de banque
-		param limitePrets; #limite de pret par banque
-		param taux{1..N,Villes}; #Taux d'emprunt pour chaque banque pour chaque boutique
-
-		var x{1..N,Villes} >= 0; #quantite empruntee à chaque banque pour chaque boutique
-
-		minimize remboursement : sum{i in 1..N, j in Villes} (x[i,j]*taux[i,j]/(1-(1+taux[i,j])^(-8))); #Montant du remboursement
-
-		s.t. ctr1{i in 1..N} : sum{j in Villes} x[i,j] <= limitePrets; #pour chaque banque, on limite la somme des prets
-		s.t. ctr2{j in Villes} : sum{i in 1..N} x[i,j] >= couts[j]; #chaque boutique doit être financée
-
-		solve;
-		display x;
-		display sum{i in 1..N, j in Villes} (x[i,j]*taux[i,j]/(1-(1+taux[i,j])^(-8)));
-
-
-		data;
-
-		param N := 3;
-		set Villes := Bordeaux, Lille, Nantes ;
-		param couts := Bordeaux 2.5 Lille 1 Nantes 2;
-		param limitePrets := 2;
-		param taux : Bordeaux Lille   Nantes :=
-				1    0.05     0.065   0.061
-				2    0.052    0.058   0.062
-				3    0.05     0.06    0.06     ;
-		</textarea>
-		</div></div>
-		<div class="col-md-12">
-		<input type="button" onclick="solve()" value="Solve" class="btn btn-success"/>
+		<div class="row">
+			<div class="col-md-12">
+				<textarea id="modelInput" class="form-control"></textarea>
+			</div>
+			<div class="col-md-12" style="padding:2em;">
+				<input type="button" onclick="solve()" value="Solve" class="pull-right btn btn-success"/>
+				<input type="button" onclick="saveModelToFile('model.txt')" value="Save" class="btn btn-default"/>
+				<input type="button" onclick="myCodeMirror.setValue('')" value="Clear" class="btn btn-danger"/>
+			</div>
+			<div class="col-md-12" id="msgZone"></div>
 		</div>
-		<div class="col-md-12" id="msgZone">
-			
-		</div>
-		<div class="row"><div class="col-md-12">
-		  <!-- Nav tabs -->
-		  <ul class="nav nav-tabs" role="tablist">
-			<li role="presentation" class="active"><a href="#status" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
-			<li role="presentation"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">Logs</a></li>
-			<li role="presentation"><a href="#output" aria-controls="output" role="tab" data-toggle="tab">Output</a></li>
-			<li role="presentation"><a href="#variables" aria-controls="variables" role="tab" data-toggle="tab">Variables</a></li>
-			<li role="presentation"><a href="#constraints" aria-controls="constraints" role="tab" data-toggle="tab">Constraints</a></li>
-		  </ul>
+		<div class="row">
+			<div class="col-md-12">
+			  <!-- Nav tabs -->
+			  <ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#status" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
+				<li role="presentation"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">Logs</a></li>
+				<li role="presentation"><a href="#output" aria-controls="output" role="tab" data-toggle="tab">Output</a></li>
+				<li role="presentation"><a href="#variables" aria-controls="variables" role="tab" data-toggle="tab">Variables</a></li>
+				<li role="presentation"><a href="#constraints" aria-controls="constraints" role="tab" data-toggle="tab">Constraints</a></li>
+			  </ul>
 
-		  <!-- Tab panes -->
-		  <div class="tab-content">
-			<div role="tabpanel" class="tab-pane active" id="status">
-				<table class="table table-striped">
-					<tr><td>Status<td><span id="cplxStatus" class="resField"></span>
-					<tr><td>Objective<td><span id="cplxObj" class="resField"></span>
-					<tr><td>Direction<td><span id="cplxDirection" class="resField"></span>
-					<tr><td>Number of Rows<td><span id="cplxNbRows" class="resField"></span>
-					<tr><td>Number of Columns<td><span id="cplxNbCols" class="resField"></span>
-					<tr><td>Non-zero elements<td><span id="cplxNbNZ" class="resField"></span>
-					<tr><td>Number of integer variables<td><span id="cplxNbInt" class="resField"></span>
-					<tr><td>Number of binary variables<td><span id="cplxNbBool" class="resField"></span>
-				</table>
+			  <!-- Tab panes -->
+			  <div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="status">
+					<table class="table table-striped">
+						<tr><td>Status<td><span id="cplxStatus" class="resField"></span>
+						<tr><td>Objective<td><span id="cplxObj" class="resField"></span>
+						<tr><td>Direction<td><span id="cplxDirection" class="resField"></span>
+						<tr><td>Number of Rows<td><span id="cplxNbRows" class="resField"></span>
+						<tr><td>Number of Columns<td><span id="cplxNbCols" class="resField"></span>
+						<tr><td>Non-zero elements<td><span id="cplxNbNZ" class="resField"></span>
+						<tr><td>Number of integer variables<td><span id="cplxNbInt" class="resField"></span>
+						<tr><td>Number of binary variables<td><span id="cplxNbBool" class="resField"></span>
+					</table>
+				</div>
+				<div role="tabpanel" class="tab-pane" id="log">
+					<div id="glpkLog"></div>
+				</div>
+				<div role="tabpanel" class="tab-pane" id="output">
+					<div id="glpkOutput"></div>
+				</div>
+				<div role="tabpanel" class="tab-pane table-responsive" id="variables">
+					<table class="table table-bordered table-striped" id="varTable">
+						<thead><tr><th>Name<th>Value<th>Type<th>LB<th>UB<th>Objective Coef<th>Primal<th>Dual</tr></thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+				<div role="tabpanel" class="tab-pane table-responsive" id="constraints">
+					<table class="table table-bordered table-striped" id="rowTable">
+						<thead><tr><th>Name<th>Value<th>LB<th>UB<th>Primal<th>Dual</tr></thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			  </div>
 			</div>
-			<div role="tabpanel" class="tab-pane" id="log">
-				<div id="glpkLog"></div>
-			</div>
-			<div role="tabpanel" class="tab-pane" id="output">
-				<div id="glpkOutput"></div>
-			</div>
-			<div role="tabpanel" class="tab-pane table-responsive" id="variables">
-				<table class="table table-bordered table-striped" id="varTable">
-					<thead><tr><th>Name<th>Value<th>Type<th>LB<th>UB<th>Objective Coef<th>Primal<th>Dual</tr></thead>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
-			<div role="tabpanel" class="tab-pane table-responsive" id="constraints">
-				<table class="table table-bordered table-striped" id="rowTable">
-					<thead><tr><th>Name<th>Value<th>LB<th>UB<th>Primal<th>Dual</tr></thead>
-					<tbody>
-					</tbody>
-				</table>
-			</div>
-		  </div>
-		</div></div>
+		</div>
 	</div>
 </body>
 <script src="jquery.min.js"></script>
 <script src="glpk.min.js"></script>
 <script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="FileSaver.min.js"></script>
 <script src="codemirror/lib/codemirror.js"></script>
 <script src="codemirror/addon/mode/simple.js"></script>
 <script src="codemirror/mode/gmpl/gmpl.js"></script>
@@ -132,6 +106,7 @@
 	var myCodeMirror = CodeMirror.fromTextArea($("#modelInput")[0],{
 		lineNumbers:true,
 		matchBrackets:true,
+		autofocus:true,
 		extraKeys: {
 			"F11": function(cm) {
 			  cm.setOption("fullScreen", !cm.getOption("fullScreen"));
@@ -274,5 +249,22 @@
 		
 		
 	}
+	
+	function saveModelToFile(filename){
+		var blob = new Blob([myCodeMirror.getValue("\r\n")], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, filename);
+	}
+	
+	/** 
+	 *  Automatic local save and restore
+	 *  Used if browser is accidentally closed
+	 *  Save every 30s and restore on page loading
+	 **/
+	if(localStorage.getItem("savedModel")){
+		myCodeMirror.setValue(localStorage.getItem("savedModel"));
+	}
+	setInterval(function(){
+		localStorage.setItem("savedModel",myCodeMirror.getValue());
+	},30000);
 </script>
 </html>
