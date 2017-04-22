@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Gnu Math Prog Online Solver</title>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="codemirror/lib/codemirror.css"/>
+	<link rel="stylesheet" href="codemirror/addon/dialog/dialog.css">
+	<link rel="stylesheet" href="codemirror/addon/display/fullscreen.css">
+	<link rel="stylesheet" href="codemirror/addon/hint/show-hint.css">
+	<link rel="stylesheet" href="codemirror/addon/search/matchesonscrollbar.css">
+	<style>
+		.line-error {
+            background: #FBC2C4 !important;
+            color: #8a1f11 !important;
+        }
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>GNU MATHPROG SOLVER</h1>
+		<div class="row"><div class="col-md-12">
+		<textarea id="modelInput" class="form-control" rows="20">
+		#Exercice 3 : emprunts bancaires
+
+		set Villes; # ensemble des boutiques
+		param couts{Villes}; #cout de construction
+		param N; # nombre de banque
+		param limitePrets; #limite de pret par banque
+		param taux{1..N,Villes}; #Taux d'emprunt pour chaque banque pour chaque boutique
+
+		var x{1..N,Villes} >= 0; #quantite empruntee à chaque banque pour chaque boutique
+
+		minimize remboursement : sum{i in 1..N, j in Villes} (x[i,j]*taux[i,j]/(1-(1+taux[i,j])^(-8))); #Montant du remboursement
+
+		s.t. ctr1{i in 1..N} : sum{j in Villes} x[i,j] <= limitePrets; #pour chaque banque, on limite la somme des prets
+		s.t. ctr2{j in Villes} : sum{i in 1..N} x[i,j] >= couts[j]; #chaque boutique doit être financée
+
+		solve;
+		display x;
+		display sum{i in 1..N, j in Villes} (x[i,j]*taux[i,j]/(1-(1+taux[i,j])^(-8)));
+
+
+		data;
+
+		param N := 3;
+		set Villes := Bordeaux, Lille, Nantes ;
+		param couts := Bordeaux 2.5 Lille 1 Nantes 2;
+		param limitePrets := 2;
+		param taux : Bordeaux Lille   Nantes :=
+				1    0.05     0.065   0.061
+				2    0.052    0.058   0.062
+				3    0.05     0.06    0.06     ;
+		</textarea>
+		</div></div>
+		<div class=col-md-12>
+		<input type="button" onclick="solve()" value="Solve" class="btn btn-success"/>
+		</div>
+		<div class="row"><div class="col-md-12">
+		  <!-- Nav tabs -->
+		  <ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#status" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
+			<li role="presentation"><a href="#log" aria-controls="log" role="tab" data-toggle="tab">Logs</a></li>
+			<li role="presentation"><a href="#output" aria-controls="output" role="tab" data-toggle="tab">Output</a></li>
+			<li role="presentation"><a href="#variables" aria-controls="variables" role="tab" data-toggle="tab">Variables</a></li>
+			<li role="presentation"><a href="#constraints" aria-controls="constraints" role="tab" data-toggle="tab">Constraints</a></li>
+		  </ul>
+
+		  <!-- Tab panes -->
+		  <div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="status">
+				<table class="table table-striped">
+					<tr><td>Status<td><span id="cplxStatus" class="resField"></span>
+					<tr><td>Objective<td><span id="cplxObj" class="resField"></span>
+					<tr><td>Direction<td><span id="cplxDirection" class="resField"></span>
+					<tr><td>Number of Rows<td><span id="cplxNbRows" class="resField"></span>
+					<tr><td>Number of Columns<td><span id="cplxNbCols" class="resField"></span>
+					<tr><td>Non-zero elements<td><span id="cplxNbNZ" class="resField"></span>
+					<tr><td>Number of integer variables<td><span id="cplxNbInt" class="resField"></span>
+					<tr><td>Number of binary variables<td><span id="cplxNbBool" class="resField"></span>
+				</table>
+			</div>
+			<div role="tabpanel" class="tab-pane" id="log">
+				<div id="glpkLog"></div>
+			</div>
+			<div role="tabpanel" class="tab-pane" id="output">
+				<div id="glpkOutput"></div>
+			</div>
+			<div role="tabpanel" class="tab-pane table-responsive" id="variables">
+				<table class="table table-bordered table-striped" id="varTable">
+					<thead><tr><th>Name<th>Value<th>Type<th>LB<th>UB<th>Objective Coef<th>Primal<th>Dual</tr></thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div role="tabpanel" class="tab-pane table-responsive" id="constraints">
+				<table class="table table-bordered table-striped" id="rowTable">
+					<thead><tr><th>Name<th>Value<th>LB<th>UB<th>Primal<th>Dual</tr></thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		  </div>
+		</div></div>
+	</div>
+</body>
+<script src="jquery.min.js"></script>
+<script src="glpk.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="codemirror/addon/mode/simple.js"></script>
+<script src="codemirror/mode/gmpl/gmpl.js"></script>
+<script src="codemirror/addon/edit/matchbrackets.js"></script>
+<script src="codemirror/addon/hint/show-hint.js"></script>
+<script src="codemirror/addon/hint/anyword-hint.js"></script>
+<script src="codemirror/addon/display/fullscreen.js"></script>
+<script src="codemirror/addon/dialog/dialog.js"></script>
+<script src="codemirror/addon/search/searchcursor.js"></script>
+<script src="codemirror/addon/search/search.js"></script>
+<script src="codemirror/addon/scroll/annotatescrollbar.js"></script>
+<script src="codemirror/addon/search/matchesonscrollbar.js"></script>
+<script src="codemirror/addon/search/jump-to-line.js"></script>
+
+<script>
+	//var myTextArea = $("#modelInput")[0];
+	var myCodeMirror = CodeMirror.fromTextArea($("#modelInput")[0],{
+		lineNumbers:true,
+		matchBrackets:true,
+		extraKeys: {
+			"F11": function(cm) {
+			  cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+			},
+			"Esc": function(cm) {
+			  if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+			},
+			"Ctrl-Space": "autocomplete",
+			"Ctrl-Enter": function(){solve();}
+		}
+	});
+		
+	function solve(){
+		$(".line-error").removeClass("line-error");
+		$("#glpkLog").html("");
+		$("#glpkOutput").html("");
+		$("#varTable tbody").empty();
+		$("#rowTable tbody").empty();
+		$(".resField").empty();
+		
+		glp_set_print_func(function(data){
+			$("#glpkLog").append("<br/>"+data);
+		});
+		var model = myCodeMirror.getValue();
+		var lp = glp_create_prob();
+		var tran = glp_mpl_alloc_wksp();
+		_glp_mpl_init_rand(tran, 1);
+		try{
+			var ret = glp_mpl_read_model_from_string(tran,"model",model,0);
+			glp_mpl_generate(tran, null, function(data){$("#glpkOutput").append("<br/>"+data)});
+			glp_mpl_build_prob(tran, lp);
+			//glp_scale_prob(lp);
+			var smcp = new SMCP({presolve: GLP_ON});
+			glp_simplex(lp, smcp);
+			//Integer Optimizer Parameters
+			var iocp = new IOCP({presolve: GLP_ON});
+			glp_intopt(lp, iocp);
+			//Return back to the mpl model
+			glp_mpl_postsolve(tran, lp, GLP_MIP);
+		}catch(err){
+			if(err.line){
+				myCodeMirror.addLineClass(err.line-1,'background','line-error');
+			}
+			console.log(err.toString());
+			return;
+		}
+		
+		
+		var direction
+		if(glp_get_obj_dir(lp)==GLP_MIN){
+			direction = "MINIMIZATION";
+		}else{
+			direction = "MAXIMIZATION";
+		}
+		
+		var status;
+		switch(glp_mip_status(lp)){
+			case GLP_OPT : status = "OPTIMAL"; break;
+			case GLP_UNDEF : status = "UNDEFINED SOLUTION"; break;
+			case GLP_INFEAS : status = "INFEASIBLE SOLUTION"; break;
+			case GLP_NOFEAS : status = "NO FEASIBLE SOLUTION"; break;
+			case GLP_FEAS : status = "FEASIBLE SOLUTION"; break;
+			case GLP_UNBND : status = "UNBOUNDED SOLUTION"; break;
+		}
+		
+		
+		
+		
+		$("#cplxNbRows").html(glp_get_num_rows(lp));
+		$("#cplxNbCols").html(glp_get_num_cols(lp));
+		$("#cplxNbNZ").html(glp_get_num_nz(lp));
+		$("#cplxNbInt").html(glp_get_num_int(lp));
+		$("#cplxNbBool").html(glp_get_num_bin(lp));
+		$("#cplxDirection").html(direction);
+		$("#cplxStatus").html(status);
+		$("#cplxObj").html(glp_mip_obj_val(lp));
+				
+		
+		//VARIABLE DISPLAY
+		
+		for( var i = 1; i <= glp_get_num_cols(lp); i++){
+			var colType;
+			switch(glp_get_col_kind(lp,i)){
+				case GLP_CV : colType="continuous";break;
+				case GLP_IV : colType="integer";break;
+				case GLP_BV : colType="binary";break;
+			}
+			var ub = glp_get_col_ub(lp, i);
+			if(ub >= Number.MAX_VALUE){
+				ub = "+inf";
+			}
+			var lb = glp_get_col_lb(lp, i);
+			if(lb <= Number.MIN_VALUE){
+				lb = "-inf";
+			}
+			
+			
+			$("#varTable tbody").append("<tr><td>"+glp_get_col_name(lp, i)
+										   +"<td>"+glp_mip_col_val(lp, i)
+										   +"<td>"+colType
+										   +"<td>"+lb
+										   +"<td>"+ub
+										   +"<td>"+glp_get_obj_coef(lp, i)
+										   +"<td>"+glp_get_col_prim(lp, i)
+										   +"<td>"+glp_get_col_dual(lp, i)
+										+"</tr>");
+			//console.log(glp_get_col_name(lp, i)  + " = " + glp_mip_col_val(lp, i));
+		}
+		
+		
+		//CONSTRAINTS DISPLAY
+		for( var i = 1; i <= glp_get_num_rows(lp); i++){
+
+			var ub = glp_get_row_ub(lp, i);
+			if(ub >= Number.MAX_VALUE){
+				ub = "+inf";
+			}
+			var lb = glp_get_row_lb(lp, i);
+			if(lb <= Number.MIN_VALUE){
+				lb = "-inf";
+			}
+			
+			
+			$("#rowTable tbody").append("<tr><td>"+glp_get_row_name(lp, i)
+										   +"<td>"+glp_mip_row_val(lp, i)
+										   +"<td>"+lb
+										   +"<td>"+ub
+										   +"<td>"+glp_get_row_prim(lp, i)
+										   +"<td>"+glp_get_row_dual(lp, i)
+										+"</tr>");
+			//console.log(glp_get_col_name(lp, i)  + " = " + glp_mip_col_val(lp, i));
+		}
+		
+		
+		
+	}
+</script>
+</html>
