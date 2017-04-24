@@ -176,7 +176,7 @@
 <script src="codemirror/addon/search/jump-to-line.js"></script>
 
 <script>
-	//var myTextArea = $("#modelInput")[0];
+	var highlightedLine;
 	var myCodeMirror = CodeMirror.fromTextArea($("#modelInput")[0],{
 		lineNumbers:true,
 		matchBrackets:true,
@@ -195,7 +195,7 @@
 		
 	function solve(){
 		$("#msgZone").html("");
-		$(".line-error").removeClass("line-error");
+	    if(highlightedLine) myCodeMirror.removeLineClass(highlightedLine,'background','line-error');
 		$("#glpkLog").html("");
 		$("#glpkOutput").html("");
 		$("#varTable tbody").empty();
@@ -223,7 +223,8 @@
 			glp_mpl_postsolve(tran, lp, GLP_MIP);
 		}catch(err){
 			if(err.line){
-				myCodeMirror.addLineClass(err.line-1,'background','line-error');
+				highlightedLine = err.line-1;
+				myCodeMirror.addLineClass(highlightedLine,'background','line-error');
 			}
 			$("#msgZone").append("<div class=' alert alert-danger'>"+err.toString()+"</div>");
 			console.log(err.toString());
