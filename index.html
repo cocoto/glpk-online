@@ -20,18 +20,25 @@
 			height:70vh;
 			border: 1px solid #eee;
 		}
+		.helpLogo{
+			font-size:.8em;
+			margin-left:20px;
+		}
+		#helpModal h2{
+			font-size:1.5em;
+		}
 	</style>
 </head>
 
 <body>
 	<div class="container">
-		<h1>GNU MATHPROG SOLVER</h1>
+		<h1>GNU MATHPROG SOLVER <a href="#help" id="helpBtn" onclick="showHelp()"><span class="helpLogo glyphicon glyphicon-question-sign"></span></a></h1>
 		<div class="row">
 			<div class="col-md-12">
 				<textarea id="modelInput" class="form-control"></textarea>
 			</div>
 			<div class="col-md-12" style="padding:2em;">
-				<input type="button" onclick="solve()" value="Solve" class="pull-right btn btn-success"/>
+				<input type="button" onclick="solve()" value="Solve" class="pull-right btn btn-success" title="CTRL Space"/>
 				<input type="button" onclick="saveModelToFile('model.txt')" value="Save" class="btn btn-default"/>
 				<input type="button" onclick="myCodeMirror.setValue('')" value="Clear" class="btn btn-danger"/>
 			</div>
@@ -86,6 +93,69 @@
 			</div>
 		</div>
 	</div>
+	<!--Fork me on github ribbon -->
+	<a href="https://github.com/cocoto/glpk-online"><img style="position: absolute; top: 0; right: 0; border: 0;" src="forkme.png" alt="Fork me on GitHub"></a>
+	
+	<div class="modal fade" tabindex="-1" id="helpModal" role="dialog">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">About GLPK-Online</h4>
+		  </div>
+		  <div class="modal-body">
+			<p>Glpk-Online is an free open-source embedded mixed linear programing solver interface based 
+				on <a href="https://github.com/hgourvest/glpk.js">Glpk.js</a>
+			</p>
+			<h2>Features</h2>
+			<ul>
+				<li>Mixed Integer Binary Linear Solver
+				<li>Fully embedded in navigator
+				<li>GNU Mathprog language (<a href="gmpl.pdf" target="_blank">manual</a>)
+				<li>Variable and Constraints display
+				<li>Syntax Highlighting
+				<li>Auto-complete (ctrl+space)
+				<li>Drag-and-drop file import
+				<li>Auto backup (every 30s)
+			</ul>
+			<h2>Keyboard Shorcuts</h2>
+			<i>Only valid in editor</i>
+			<table class="table table-striped">
+				<tr><td>Ctrl+Enter<td>Solve
+				<tr><td>Ctrl+Space<td>Auto-complete
+				<tr><td>Ctrl+F<td>Search
+				<tr><td>Ctrl+G<td>Next (search)
+				<tr><td>Ctrl+Shift+G<td>Previous (search)
+				<tr><td>Ctrl+Shift+F<td>Search and Replace
+				<tr><td>Ctrl+D<td>Delete Line
+				<tr><td>F11<td>Switch fullscreen editor mode
+			</table>
+			<h2>External libraries and license</h2>
+			<ul>
+				<li> <a href="https://github.com/hgourvest/glpk.js">Glpk.js</a>, GNU Linear Programming Kit for Javascript
+				<li> <a href="https://github.com/codemirror/CodeMirror/">CodeMirror</a>, In-browser code editor
+				<li> <a href="https://github.com/jquery/jquery">jQuery</a>, New Wave JavaScript
+				<li> <a href="https://github.com/twbs/bootstrap">Bootstrap</a>, The most popular HTML, CSS, and JavaScript framework for developing responsive, mobile first projects on the web.
+				<li> <a href="https://github.com/eligrey/FileSaver.js">FileSaver.js</a>, An HTML5 saveAs() FileSaver implementation
+			</ul>	
+				
+				<p><small>Copyright &copy; 2017 Quentin Tonneau &lt;qtonneau@gmail.com&gt;<br/>
+			This program is free software: you can redistribute it and/or modify
+			it under the terms of the GNU General Public License as published by
+			the Free Software Foundation version 2.
+
+			This program is distributed in the hope that it will be useful,
+			but WITHOUT ANY WARRANTY; without even the implied warranty of
+			MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+			GNU General Public License for more details.
+
+			You should have received a copy of the GNU General Public License
+			along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+		  </small></p>
+		  </div>
+		</div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 </body>
 <script src="jquery.min.js"></script>
 <script src="glpk.min.js"></script>
@@ -270,5 +340,9 @@
 	setInterval(function(){
 		localStorage.setItem("savedModel",myCodeMirror.getValue());
 	},30000);
+	
+	function showHelp(){
+		$("#helpModal").modal("show");
+	}
 </script>
 </html>
