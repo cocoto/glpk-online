@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GLPK Online</title>
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
 	<link rel="stylesheet" href="codemirror/lib/codemirror.css"/>
@@ -13,9 +13,9 @@
 	<link rel="stylesheet" href="codemirror/addon/search/matchesonscrollbar.css">
 	<style>
 		.line-error {
-            background: #FBC2C4 !important;
-            color: #8a1f11 !important;
-        }
+			background: #FBC2C4 !important;
+			color: #8a1f11 !important;
+		}
 		.CodeMirror{
 			height:70vh;
 			border: 1px solid #eee;
@@ -40,6 +40,7 @@
 			<div class="col-md-12" style="padding:2em;">
 				<input type="button" onclick="solve()" value="Solve" class="pull-right btn btn-success" title="CTRL Space"/>
 				<input type="button" onclick="saveModelToFile('model.txt')" value="Save" class="btn btn-default"/>
+				<input type="button" onclick="shareModelAsUrl()" title="Store model in URL" value="Share" class="btn btn-default"/>
 				<input type="button" onclick="myCodeMirror.setValue('')" value="Clear" class="btn btn-danger"/>
 			</div>
 			<div class="col-md-12" id="msgZone"></div>
@@ -329,13 +330,22 @@
 		var blob = new Blob([myCodeMirror.getValue("\r\n")], {type: "text/plain;charset=utf-8"});
 		saveAs(blob, filename);
 	}
+
+	function shareModelAsUrl(){
+		var modelString = encodeURIComponent(myCodeMirror.getValue("\r\n"));
+		window.history.pushState({}, document.title, "?m="+modelString);
+	}
 	
 	/** 
 	 *  Automatic local save and restore
 	 *  Used if browser is accidentally closed
 	 *  Save every 30s and restore on page loading
 	 **/
-	if(localStorage.getItem("savedModel")){
+	myUrl = new URL(window.location.href);
+	if(myUrl.searchParams.get('m')) {
+		myCodeMirror.setValue(myUrl.searchParams.get('m'));
+	}
+	else if(localStorage.getItem("savedModel")){
 		myCodeMirror.setValue(localStorage.getItem("savedModel"));
 	}
 	setInterval(function(){
