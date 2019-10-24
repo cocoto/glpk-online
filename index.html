@@ -162,6 +162,7 @@
 <script src="glpk.min.js"></script>
 <script src="bootstrap/js/bootstrap.min.js"></script>
 <script src="FileSaver.min.js"></script>
+<script src="lz-string.min.js"></script>
 <script src="codemirror/lib/codemirror.js"></script>
 <script src="codemirror/addon/mode/simple.js"></script>
 <script src="codemirror/mode/gmpl/gmpl.js"></script>
@@ -332,8 +333,8 @@
 	}
 
 	function shareModelAsUrl(){
-		var modelString = encodeURIComponent(myCodeMirror.getValue("\r\n"));
-		window.history.pushState({}, document.title, "?m="+modelString);
+		var modelString = LZString.compressToEncodedURIComponent(myCodeMirror.getValue("\r\n"));
+		window.history.pushState({}, document.title, "#" + modelString);
 	}
 	
 	/** 
@@ -341,9 +342,10 @@
 	 *  Used if browser is accidentally closed
 	 *  Save every 30s and restore on page loading
 	 **/
-	myUrl = new URL(window.location.href);
-	if(myUrl.searchParams.get('m')) {
-		myCodeMirror.setValue(myUrl.searchParams.get('m'));
+	modelHash = window.location.hash;
+	if(modelHash) {
+		myCodeMirror.setValue(LZString.decompressFromEncodedURIComponent(modelHash.substring(1)));
+		window.location.hash = "";
 	}
 	else if(localStorage.getItem("savedModel")){
 		myCodeMirror.setValue(localStorage.getItem("savedModel"));
