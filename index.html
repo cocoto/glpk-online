@@ -71,10 +71,10 @@
 					</table>
 				</div>
 				<div role="tabpanel" class="tab-pane" id="log">
-					<div id="glpkLog"></div>
+					<pre id="glpkLog"></pre>
 				</div>
 				<div role="tabpanel" class="tab-pane" id="output">
-					<div id="glpkOutput"></div>
+					<pre id="glpkOutput"></pre>
 				</div>
 				<div role="tabpanel" class="tab-pane table-responsive" id="variables">
 					<table class="table table-bordered table-striped" id="varTable">
@@ -205,7 +205,7 @@
 		$(".resField").empty();
 		
 		glp_set_print_func(function(data){
-			$("#glpkLog").append("<br/>"+data);
+			$("#glpkLog").append(data+"<br/>");
 		});
 		var model = myCodeMirror.getValue();
 		var lp = glp_create_prob();
@@ -213,7 +213,7 @@
 		_glp_mpl_init_rand(tran, 1);
 		try{
 			var ret = glp_mpl_read_model_from_string(tran,"model",model,0);
-			glp_mpl_generate(tran, null, function(data){$("#glpkOutput").append("<br/>"+data)});
+			glp_mpl_generate(tran, null, function(data){$("#glpkOutput").append(data+"<br/>")});
 			glp_mpl_build_prob(tran, lp);
 			//glp_scale_prob(lp);
 			var smcp = new SMCP({presolve: GLP_ON});
