@@ -212,7 +212,13 @@
 		var tran = glp_mpl_alloc_wksp();
 		_glp_mpl_init_rand(tran, 1);
 		try{
-			var ret = glp_mpl_read_model_from_string(tran,"model",model,0);
+			var ret;
+			if(/\bvar\b/.exec(model) != null)
+			{
+				ret = glp_mpl_read_model_from_string(tran,"model",model,0);
+			}else{
+				ret = glp_read_lp_from_string(tran,"model",model);
+			}
 			glp_mpl_generate(tran, null, function(data){$("#glpkOutput").append(data+"<br/>")});
 			glp_mpl_build_prob(tran, lp);
 			//glp_scale_prob(lp);
